@@ -24,6 +24,7 @@ WG.Screens._hideOverlay = function () {
 };
 
 WG.Screens.showTitle = function (onStart) {
+    const savedName = localStorage.getItem('wg_catname');
     const el = WG.Screens._makeOverlay(`
         <div style="text-align:center;max-width:480px;padding:24px;">
             <div style="font-size:12px;letter-spacing:4px;color:#8B6914;margin-bottom:8px;">EIN BROWSERSPIEL</div>
@@ -34,15 +35,33 @@ WG.Screens.showTitle = function (onStart) {
                 Kämpfe für deinen Clan, werde ausgebildet und steige<br>
                 bis zum Anführer auf.
             </p>
+            ${savedName ? `<button id="continueBtn" style="background:#3a5a0a;border:2px solid #5a8a1a;color:#90FF90;
+                font-family:Georgia,serif;font-size:17px;padding:12px 36px;cursor:pointer;border-radius:6px;
+                letter-spacing:1px;margin-bottom:10px;display:block;width:100%;box-sizing:border-box;"></button>` : ''}
             <button id="startBtn" style="background:#5a3e0a;border:2px solid #8B6914;color:#FFD700;
                 font-family:Georgia,serif;font-size:18px;padding:14px 40px;cursor:pointer;border-radius:6px;
-                letter-spacing:1px;">SPIELEN</button>
+                letter-spacing:1px;">${savedName ? 'Neues Spiel' : 'SPIELEN'}</button>
             <div style="margin-top:20px;font-size:11px;color:#666;">
                 PC: WASD bewegen · Maus umschauen · Linksklick angreifen · Leertaste ausweichen<br>
                 E interagieren · M Karte · J Quests · I Vorräte
             </div>
         </div>
     `);
+    if (savedName) {
+        const btn = document.getElementById('continueBtn');
+        btn.textContent = 'Weiterspielen als ' + savedName;
+        btn.addEventListener('click', () => {
+            WG.playerStats.name = savedName;
+            WG.HUD.updateRank();
+            WG.Screens._hideOverlay();
+            WG.gameStarted = true;
+            if (!WG.Helpers.isMobile()) {
+                document.getElementById('renderCanvas').requestPointerLock();
+            }
+            WG.Quest.start('patrol');
+            onStart && onStart();
+        });
+    }
     document.getElementById('startBtn').addEventListener('click', () => {
         WG.Screens.showNameEntry(onStart);
     });
@@ -63,10 +82,14 @@ WG.Screens.showNameEntry = function (onStart) {
             </button>
         </div>
     `);
-    document.getElementById('catNameInput').focus();
+    const nameInput = document.getElementById('catNameInput');
+    nameInput.focus();
+    const prior = localStorage.getItem('wg_catname');
+    if (prior) nameInput.value = prior;
     const proceed = () => {
-        const val = document.getElementById('catNameInput').value.trim();
+        const val = nameInput.value.trim();
         WG.playerStats.name = val || 'Jüngling';
+        localStorage.setItem('wg_catname', WG.playerStats.name);
         WG.HUD.updateRank();
         WG.Screens._hideOverlay();
         WG.gameStarted = true;
@@ -77,7 +100,7 @@ WG.Screens.showNameEntry = function (onStart) {
         onStart && onStart();
     };
     document.getElementById('nameBtn').addEventListener('click', proceed);
-    document.getElementById('catNameInput').addEventListener('keydown', e => {
+    nameInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') proceed();
     });
 };
