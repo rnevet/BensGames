@@ -16,7 +16,7 @@ WG.Terrain.create = function (scene) {
         pos[i + 1] = WG.Helpers.terrainHeight(pos[i], pos[i + 2]);
     }
     ground.updateVerticesData(BABYLON.VertexBuffer.PositionKind, pos);
-    const norms = [];
+    const norms = new Float32Array(pos.length);
     BABYLON.VertexData.ComputeNormals(pos, ground.getIndices(), norms);
     ground.updateVerticesData(BABYLON.VertexBuffer.NormalKind, norms);
 

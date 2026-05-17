@@ -31,13 +31,15 @@ WG.Touch.init = function (camera) {
         const mag = Math.sqrt(dx * dx + dy * dy);
         const cx = mag > max ? dx / mag * max : dx;
         const cy = mag > max ? dy / mag * max : dy;
-        joystickDelta = { x: cx / max, y: cy / max };
+        joystickDelta.x = cx / max;
+        joystickDelta.y = cy / max;
         thumb.style.transform = `translate(calc(-50% + ${cx}px), calc(-50% + ${cy}px))`;
     }, { passive: false });
 
     const resetJoy = () => {
         joystickActive = false;
-        joystickDelta = { x: 0, y: 0 };
+        joystickDelta.x = 0;
+        joystickDelta.y = 0;
         thumb.style.transform = 'translate(-50%,-50%)';
     };
     joystickZone.addEventListener('touchend', resetJoy);

@@ -81,7 +81,8 @@ WG.Environment._createRocks = function (scene) {
         const z = H.rand(-sz, sz);
         if (Math.sqrt(x * x + z * z) < 35) continue;
 
-        const rock = BABYLON.MeshBuilder.CreatePolyhedron('rock' + i, { type: 1, size: H.rand(0.5, 2.0) }, scene);
+        const s = H.rand(0.5, 2.0);
+        const rock = BABYLON.MeshBuilder.CreateBox('rock' + i, { width: s * 1.1, height: s * 0.7, depth: s * 0.9 }, scene);
         rock.material = rockMat;
         rock.isPickable = false;
         WG.Environment._placeAtTerrain(rock, x, z, 0.5);
