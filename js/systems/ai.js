@@ -135,7 +135,7 @@ WG.AI._moveTo = function (mesh, target, speed, dt) {
     if (dist < 0.3) return;
     pos.x += (dx / dist) * speed * dt;
     pos.z += (dz / dist) * speed * dt;
-    pos.y = WG.Helpers.terrainHeight(pos.x, pos.z);
+    pos.y = WG.Helpers.terrainHeight(pos.x, pos.z) + Math.sin(WG.AI._frameCount * 0.5 + mesh.uniqueId) * 0.035;
     mesh.rotation.y = Math.atan2(dx, dz);
 };
 

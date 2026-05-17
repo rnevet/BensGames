@@ -43,6 +43,8 @@ WG.Combat.playerAttack = function () {
     if (now - ps.lastAttackTime < WG.C.ATTACK_COOLDOWN) return;
     ps.lastAttackTime = now;
 
+    WG.Sound.attack();
+
     const scene = WG.Combat._scene;
     const engine = scene.getEngine();
     const pick = scene.pick(engine.getRenderWidth() / 2, engine.getRenderHeight() / 2,
@@ -83,6 +85,7 @@ WG.Combat.collectHerb = function (herbObj) {
 WG.Combat.enemyHitPlayer = function (amount) {
     const ps = WG.playerStats;
     if (ps.isInvincible) return;
+    WG.Sound.hit();
     ps.hp = Math.max(0, ps.hp - amount);
     WG.HUD.showVignette();
     WG.HUD.updateHealth();

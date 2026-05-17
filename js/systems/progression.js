@@ -23,6 +23,7 @@ WG.Progression.awardXP = function (amount) {
         ps.rank = ranks[newIdx].name;
         WG.Progression.onRankUp(newIdx);
     }
+    WG.Save.save();
 };
 
 WG.Progression.onRankUp = function (idx) {
@@ -55,6 +56,7 @@ WG.Progression.onRankUp = function (idx) {
     }
 
     if (idx !== 1) {
+        WG.Sound.rankUp();
         WG.HUD.showRankSplash('Rang aufgestiegen: ' + rankName + '!');
     }
     WG.HUD.updateRank();

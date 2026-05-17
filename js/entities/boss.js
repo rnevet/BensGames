@@ -55,6 +55,7 @@ WG.Boss.trigger = function (clanKey) {
     boss.hitbox.isPickable = true;
     WG.HUD.setBossBar(boss.name, 1.0);
     WG.HUD.showRankSplash('⚔ ' + boss.name + ' greift an!');
+    WG.Sound.bossTrigger();
 };
 
 WG.Boss.damage = function (amount) {

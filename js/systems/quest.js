@@ -74,4 +74,7 @@ WG.Quest._checkComplete = function (id) {
     // Chain quests
     if (id === 'patrol') setTimeout(() => WG.Quest.start('shadows'), 2000);
     if (id === 'shadows') setTimeout(() => WG.Quest.start('tigerstern'), 2000);
+
+    WG.Sound.pickup();
+    WG.Save.save();
 };

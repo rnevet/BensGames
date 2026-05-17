@@ -33,6 +33,7 @@ WG.Clanmates.create = function (scene, ui) {
             wanderTarget: catObj.root.position.clone(),
             wanderTimer: WG.Helpers.rand(1, 4),
             basePos: new BABYLON.Vector3(x, y, z),
+            _walkTime: 0,
         };
         WG.Clanmates.list.push(mate);
     });
@@ -56,10 +57,12 @@ WG.Clanmates.update = function (deltaTime) {
         const dist = Math.sqrt(dx * dx + dz * dz);
         if (dist > 0.5) {
             const speed = 2.5;
+            mate._walkTime += speed * deltaTime;
             pos.x += (dx / dist) * speed * deltaTime;
             pos.z += (dz / dist) * speed * deltaTime;
-            pos.y = WG.Helpers.terrainHeight(pos.x, pos.z);
+            pos.y = WG.Helpers.terrainHeight(pos.x, pos.z) + Math.sin(mate._walkTime * 8) * 0.04;
             mate.mesh.rotation.y = Math.atan2(dx, dz);
+            mate.mesh.rotation.z = Math.sin(mate._walkTime * 8) * 0.05;
         }
     });
 };
