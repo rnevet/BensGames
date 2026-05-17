@@ -10,8 +10,8 @@ WG.Controller.init = function (scene, canvas) {
         if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !WG.Helpers.isMobile()) {
             WG.Controller._sprinting = down;
             WG.Camera.cam.speed = down
-                ? WG.C.PLAYER_SPRINT * 0.1
-                : WG.C.PLAYER_SPEED * 0.1;
+                ? WG.C.PLAYER_SPRINT * 0.01
+                : WG.C.PLAYER_SPEED * 0.01;
         }
         // Interact (E)
         if (down && e.code === 'KeyE') WG.Controller._tryInteract();

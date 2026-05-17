@@ -11,11 +11,9 @@ WG.Camera.create = function (scene, canvas) {
     cam.setTarget(new BABYLON.Vector3(1, WG.C.PLAYER_HEIGHT + 2, 0));
     cam.minZ = 0.1;
     cam.fov = 1.15;
-    cam.checkCollisions = true;
-    cam.applyGravity = true;
-    cam.ellipsoid = new BABYLON.Vector3(0.55, WG.C.PLAYER_HEIGHT, 0.55);
-    cam.ellipsoidOffset = new BABYLON.Vector3(0, WG.C.PLAYER_HEIGHT, 0);
-    cam.speed = WG.C.PLAYER_SPEED * 0.1;
+    cam.checkCollisions = false;
+    cam.applyGravity = false;
+    cam.speed = WG.C.PLAYER_SPEED * 0.01;
     cam.angularSensibility = WG.C.PLAYER_ANGULAR;
     cam.keysUp    = [87, 38]; // W / Up
     cam.keysDown  = [83, 40]; // S / Down
@@ -41,10 +39,14 @@ WG.Camera.create = function (scene, canvas) {
             cam.position.y += bob * dt * 3;
         }
 
-        // Clamp camera to terrain
+        // Smooth terrain following: snap up instantly, glide down
         const th = WG.Helpers.terrainHeight(cam.position.x, cam.position.z);
-        const minY = th + WG.C.PLAYER_HEIGHT;
-        if (cam.position.y < minY) cam.position.y = minY;
+        const targetY = th + WG.C.PLAYER_HEIGHT;
+        if (cam.position.y < targetY) {
+            cam.position.y = targetY;
+        } else {
+            cam.position.y += (targetY - cam.position.y) * Math.min(1, dt * 15);
+        }
 
         // World boundary
         const half = WG.C.WORLD_SIZE * 0.48;
