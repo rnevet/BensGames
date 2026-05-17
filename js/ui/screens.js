@@ -24,7 +24,7 @@ WG.Screens._hideOverlay = function () {
 };
 
 WG.Screens.showTitle = function (onStart) {
-    const savedName = localStorage.getItem('wg_catname');
+    const hasSave = WG.Save && WG.Save.hasSave();
     const el = WG.Screens._makeOverlay(`
         <div style="text-align:center;max-width:480px;padding:24px;">
             <div style="font-size:12px;letter-spacing:4px;color:#8B6914;margin-bottom:8px;">EIN BROWSERSPIEL</div>
@@ -35,34 +35,39 @@ WG.Screens.showTitle = function (onStart) {
                 Kämpfe für deinen Clan, werde ausgebildet und steige<br>
                 bis zum Anführer auf.
             </p>
-            ${savedName ? `<button id="continueBtn" style="background:#3a5a0a;border:2px solid #5a8a1a;color:#90FF90;
+            ${hasSave ? `<button id="continueBtn" style="background:#3a5a0a;border:2px solid #5a8a1a;color:#90FF90;
                 font-family:Georgia,serif;font-size:17px;padding:12px 36px;cursor:pointer;border-radius:6px;
-                letter-spacing:1px;margin-bottom:10px;display:block;width:100%;box-sizing:border-box;"></button>` : ''}
+                letter-spacing:1px;margin-bottom:10px;display:block;width:100%;box-sizing:border-box;">Weiterspielen</button>` : ''}
             <button id="startBtn" style="background:#5a3e0a;border:2px solid #8B6914;color:#FFD700;
                 font-family:Georgia,serif;font-size:18px;padding:14px 40px;cursor:pointer;border-radius:6px;
-                letter-spacing:1px;">${savedName ? 'Neues Spiel' : 'SPIELEN'}</button>
+                letter-spacing:1px;">${hasSave ? 'Neues Spiel' : 'SPIELEN'}</button>
             <div style="margin-top:20px;font-size:11px;color:#666;">
                 PC: WASD bewegen · Maus umschauen · Linksklick angreifen · Leertaste ausweichen<br>
                 E interagieren · M Karte · J Quests · I Vorräte
             </div>
         </div>
     `);
-    if (savedName) {
+    if (hasSave) {
         const btn = document.getElementById('continueBtn');
-        btn.textContent = 'Weiterspielen als ' + savedName;
         btn.addEventListener('click', () => {
-            WG.playerStats.name = savedName;
+            WG.Save.load();
+            WG.Save.applyToWorld();
+            WG.HUD.updateHealth();
+            WG.HUD.updateXP();
             WG.HUD.updateRank();
+            WG.QuestLog.render();
             WG.Screens._hideOverlay();
             WG.gameStarted = true;
             if (!WG.Helpers.isMobile()) {
                 document.getElementById('renderCanvas').requestPointerLock();
             }
-            WG.Quest.start('patrol');
+            const mm = document.getElementById('minimapCanvas');
+            if (mm) mm.style.display = 'block';
             onStart && onStart();
         });
     }
     document.getElementById('startBtn').addEventListener('click', () => {
+        if (WG.Save) WG.Save.clear();
         WG.Screens.showNameEntry(onStart);
     });
 };
@@ -96,6 +101,8 @@ WG.Screens.showNameEntry = function (onStart) {
         if (!WG.Helpers.isMobile()) {
             document.getElementById('renderCanvas').requestPointerLock();
         }
+        const mm = document.getElementById('minimapCanvas');
+        if (mm) mm.style.display = 'block';
         WG.Quest.start('patrol');
         onStart && onStart();
     };

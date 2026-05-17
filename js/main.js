@@ -54,6 +54,8 @@ window.onerror = function (msg, src, line) {
         WG.Combat.init(scene, canvas);
         WG.Progression.init();
         WG.Touch.init(camera);
+        WG.DayNight.init(scene, sun, hemi);
+        WG.Minimap.init(scene);
 
         // Touch joystick applied each frame
         scene.onBeforeRenderObservable.add(function () {
