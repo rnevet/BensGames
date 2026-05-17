@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Warriors: Aufstieg des DonnerClans</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; overflow: hidden; font-family: 'Georgia', serif; }
+        #renderCanvas { width: 100vw; height: 100vh; display: block; touch-action: none; }
+
+        .overlay-panel {
+            position: fixed;
+            background: rgba(20, 12, 5, 0.93);
+            border: 2px solid #8B6914;
+            border-radius: 8px;
+            color: #F5DEB3;
+            padding: 16px;
+            font-family: 'Georgia', serif;
+            z-index: 200;
+            display: none;
+        }
+        .overlay-panel.active { display: block; }
+        .overlay-title { font-size: 18px; color: #FFD700; border-bottom: 1px solid #8B6914; padding-bottom: 8px; margin-bottom: 12px; text-align: center; }
+        .close-btn { position: absolute; top: 8px; right: 12px; background: none; border: none; color: #FFD700; font-size: 20px; cursor: pointer; }
+
+        #mapPanel { top: 50%; left: 50%; transform: translate(-50%,-50%); width: min(620px,96vw); height: min(520px,82vh); }
+        #mapCanvas { width: 100%; height: calc(100% - 64px); border: 1px solid #8B6914; display: block; }
+
+        #dialogPanel { bottom: 20px; left: 50%; transform: translateX(-50%); width: min(700px,96vw); min-height: 160px; }
+        #dialogNpcName { color: #FFD700; font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+        #dialogText { color: #F5DEB3; font-size: 14px; margin-bottom: 12px; line-height: 1.6; }
+        #dialogOptions { display: flex; flex-direction: column; gap: 8px; }
+        .dialog-option { background: rgba(139,105,20,0.3); border: 1px solid #8B6914; color: #F5DEB3; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-family: 'Georgia',serif; font-size: 13px; text-align: left; transition: background 0.15s; }
+        .dialog-option:hover, .dialog-option:active { background: rgba(139,105,20,0.65); }
+
+        #questPanel { top: 50%; right: 20px; transform: translateY(-50%); width: min(360px,92vw); max-height: 80vh; overflow-y: auto; }
+        .quest-item { background: rgba(139,105,20,0.18); border: 1px solid #8B6914; border-radius: 4px; padding: 10px; margin-bottom: 8px; }
+        .quest-title { color: #FFD700; font-size: 14px; font-weight: bold; }
+        .quest-desc { color: #C8A96E; font-size: 12px; margin: 4px 0; }
+        .quest-obj { color: #90EE90; font-size: 11px; margin-top: 4px; }
+        .quest-done .quest-title { color: #777; text-decoration: line-through; }
+        .quest-done .quest-obj { color: #777; }
+
+        #inventoryPanel { top: 50%; left: 20px; transform: translateY(-50%); width: min(300px,92vw); max-height: 80vh; overflow-y: auto; }
+        .inv-item { display: flex; align-items: center; gap: 10px; background: rgba(139,105,20,0.18); border: 1px solid #8B6914; border-radius: 4px; padding: 8px 12px; margin-bottom: 6px; }
+        .inv-icon { font-size: 22px; }
+        .inv-name { color: #F5DEB3; font-size: 13px; flex: 1; }
+        .inv-count { color: #FFD700; font-size: 13px; min-width: 28px; text-align: right; }
+        .use-btn { background: #5a3e0a; border: 1px solid #8B6914; color: #FFD700; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .use-btn:hover { background: #8B6914; }
+        .inv-empty { color: #888; font-size: 13px; text-align: center; padding: 20px; }
+
+        /* Touch controls */
+        #touchControls { display: none; }
+        #joystickZone { position: fixed; bottom: 30px; left: 30px; width: 130px; height: 130px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; background: rgba(0,0,0,0.3); touch-action: none; z-index: 150; }
+        #joystickThumb { position: absolute; width: 50px; height: 50px; background: rgba(255,255,255,0.5); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+        #touchCamZone { position: fixed; bottom: 0; right: 0; width: 50vw; height: 100vh; touch-action: none; z-index: 140; }
+        .touch-btn { position: fixed; border-radius: 50%; display: flex; align-items: center; justify-content: center; touch-action: none; user-select: none; z-index: 150; font-size: 26px; }
+        #touchAttackBtn { bottom: 60px; right: 30px; width: 80px; height: 80px; background: rgba(160,30,30,0.75); border: 3px solid rgba(255,100,100,0.9); }
+        #touchDodgeBtn { bottom: 160px; right: 36px; width: 62px; height: 62px; background: rgba(30,90,170,0.75); border: 3px solid rgba(100,180,255,0.9); font-size: 22px; }
+        #touchInteractBtn { bottom: 240px; right: 36px; width: 62px; height: 62px; background: rgba(30,140,30,0.75); border: 3px solid rgba(100,255,100,0.9); font-size: 22px; display: none; }
+        .touch-icon-btn { position: fixed; width: 50px; height: 50px; background: rgba(20,12,5,0.75); border: 2px solid #8B6914; border-radius: 10px; color: #FFD700; font-size: 22px; display: flex; align-items: center; justify-content: center; touch-action: none; z-index: 150; }
+        #touchMapBtn { top: 16px; right: 16px; }
+        #touchQuestBtn { top: 16px; right: 74px; }
+        #touchInvBtn { top: 16px; right: 132px; }
+    </style>
+</head>
+<body>
+<canvas id="renderCanvas"></canvas>
+
+<!-- Map -->
+<div id="mapPanel" class="overlay-panel">
+    <div class="overlay-title">Weltkarte</div>
+    <button class="close-btn" onclick="WG.Map.close()">✕</button>
+    <canvas id="mapCanvas"></canvas>
+    <div style="text-align:center;margin-top:6px;font-size:11px;color:#C8A96E;">
+        🟢 Du &nbsp;|&nbsp; 🟡 Lager &nbsp;|&nbsp; ❗ Quest &nbsp;|&nbsp; ☠ Boss
+    </div>
+</div>
+
+<!-- Dialog -->
+<div id="dialogPanel" class="overlay-panel">
+    <div id="dialogNpcName"></div>
+    <div id="dialogText"></div>
+    <div id="dialogOptions"></div>
+</div>
+
+<!-- Quest Log -->
+<div id="questPanel" class="overlay-panel">
+    <div class="overlay-title">Quest-Tagebuch</div>
+    <button class="close-btn" onclick="WG.QuestLog.close()">✕</button>
+    <div id="questList"></div>
+</div>
+
+<!-- Inventory -->
+<div id="inventoryPanel" class="overlay-panel">
+    <div class="overlay-title">Vorräte</div>
+    <button class="close-btn" onclick="WG.InventoryUI.close()">✕</button>
+    <div id="inventoryList"></div>
+</div>
+
+<!-- Touch Controls -->
+<div id="touchControls">
+    <div id="joystickZone"><div id="joystickThumb"></div></div>
+    <div id="touchCamZone"></div>
+    <div id="touchAttackBtn" class="touch-btn">⚔</div>
+    <div id="touchDodgeBtn" class="touch-btn">💨</div>
+    <div id="touchInteractBtn" class="touch-btn">💬</div>
+    <div id="touchMapBtn" class="touch-icon-btn">🗺</div>
+    <div id="touchQuestBtn" class="touch-icon-btn">📜</div>
+    <div id="touchInvBtn" class="touch-icon-btn">🎒</div>
+</div>
+
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script src="https://cdn.babylonjs.com/babylon.gui.min.js"></script>
+<script src="js/utils/constants.js"></script>
+<script src="js/utils/helpers.js"></script>
+<script src="js/world/terrain.js"></script>
+<script src="js/world/environment.js"></script>
+<script src="js/world/territories.js"></script>
+<script src="js/player/stats.js"></script>
+<script src="js/player/camera.js"></script>
+<script src="js/player/controller.js"></script>
+<script src="js/player/inventory.js"></script>
+<script src="js/entities/cat.js"></script>
+<script src="js/entities/npc.js"></script>
+<script src="js/entities/clanmate.js"></script>
+<script src="js/entities/enemy.js"></script>
+<script src="js/entities/boss.js"></script>
+<script src="js/systems/ai.js"></script>
+<script src="js/systems/combat.js"></script>
+<script src="js/systems/progression.js"></script>
+<script src="js/systems/quest.js"></script>
+<script src="js/systems/spawner.js"></script>
+<script src="js/ui/hud.js"></script>
+<script src="js/ui/map.js"></script>
+<script src="js/ui/dialog.js"></script>
+<script src="js/ui/questlog.js"></script>
+<script src="js/ui/inventory_ui.js"></script>
+<script src="js/ui/touch.js"></script>
+<script src="js/ui/screens.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
