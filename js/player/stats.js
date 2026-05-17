@@ -22,6 +22,7 @@ WG.Stats.create = function () {
         lastDodgeTime: 0,
         nearNPC: null,
         nearHerb: null,
+        nearClanmate: null,
     };
 };
 

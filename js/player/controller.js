@@ -46,6 +46,10 @@ WG.Controller._tryInteract = function () {
     const ps = WG.playerStats;
     if (ps.nearNPC) {
         WG.Dialog.show(ps.nearNPC);
+    } else if (ps.nearClanmate && ps.path === 'healer' && WG.Inventory.count('herb') > 0) {
+        WG.Inventory.use('herb');
+        const mate = ps.nearClanmate;
+        WG.HUD.showPickup('🌿 ' + mate.name + ' geheilt!');
     } else if (ps.nearHerb) {
         WG.Combat.collectHerb(ps.nearHerb);
     }
@@ -73,9 +77,20 @@ WG.Controller._checkNearby = function () {
         }
     }
 
+    ps.nearClanmate = null;
+    if (ps.path === 'healer') {
+        for (const mate of WG.Clanmates.list) {
+            if (WG.Helpers.distXZ(pos, mate.mesh.position) < ir) {
+                ps.nearClanmate = mate;
+                break;
+            }
+        }
+    }
+
     // Show/hide interact button on mobile
+    const canHealMate = ps.nearClanmate && ps.path === 'healer' && WG.Inventory.count('herb') > 0;
     const btn = document.getElementById('touchInteractBtn');
-    if (btn) btn.style.display = (ps.nearNPC || ps.nearHerb) ? 'flex' : 'none';
+    if (btn) btn.style.display = (ps.nearNPC || ps.nearHerb || canHealMate) ? 'flex' : 'none';
 };
 
 WG.Controller.dodge = function () {

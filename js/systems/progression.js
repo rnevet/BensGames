@@ -39,8 +39,8 @@ WG.Progression.onRankUp = function (idx) {
             ps.attackPower += 3;
             WG.HUD.showRankSplash('Du bist jetzt ein ' + rankName + '!\n+3 Angriffskraft');
         } else {
-            WG.HUD.showRankSplash('Du bist jetzt ' + rankName + '!\nKräuter heilen stärker');
             WG.C.HERB_HEAL_SELF = 35;
+            WG.Screens.showHealerFinalChoice();
         }
     }
     if (idx === 3) { // Stellvertreter / Erfahrene Medizinkatze

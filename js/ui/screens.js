@@ -137,6 +137,9 @@ WG.Screens.showMentorChoice = function () {
     const choose = (path) => {
         WG.playerStats.mentor = path;
         WG.playerStats.path = path;
+        if (path === 'healer') {
+            WG.playerStats.attackPower = Math.floor(WG.C.ATTACK_POWER_BASE * 0.7);
+        }
         const rankList = WG.Progression.getRankList();
         WG.playerStats.rank = rankList[1].name;
         WG.HUD.updateRank();
@@ -153,6 +156,57 @@ WG.Screens.showMentorChoice = function () {
 
     document.getElementById('pickWarrior').addEventListener('click', () => choose('warrior'));
     document.getElementById('pickHealer').addEventListener('click', () => choose('healer'));
+};
+
+WG.Screens.showHealerFinalChoice = function () {
+    WG.gameStarted = false;
+    if (document.exitPointerLock) document.exitPointerLock();
+
+    const el = WG.Screens._makeOverlay(`
+        <div style="text-align:center;max-width:500px;padding:28px;">
+            <h2 style="color:#90EE90;margin-bottom:10px;">Du bist nun Medizinkatze!</h2>
+            <p style="color:#C8A96E;font-size:14px;margin-bottom:24px;line-height:1.7;">
+                Deine Ausbildung ist abgeschlossen.<br>
+                Welchen Weg gehst du von jetzt an?
+            </p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+                <div id="stayHealer" style="cursor:pointer;background:rgba(10,60,20,0.5);border:2px solid #2a8a4a;
+                    border-radius:8px;padding:18px 24px;flex:1;min-width:180px;">
+                    <div style="font-size:28px;margin-bottom:8px;">🌿</div>
+                    <div style="color:#90EE90;font-size:16px;font-weight:bold;margin-bottom:6px;">Medizinkatze bleiben</div>
+                    <div style="font-size:13px;color:#C8A96E;">Heilerin des Clans<br>Weiseste Medizinkatze des Waldes</div>
+                </div>
+                <div id="switchWarrior" style="cursor:pointer;background:rgba(90,40,10,0.5);border:2px solid #8B6914;
+                    border-radius:8px;padding:18px 24px;flex:1;min-width:180px;">
+                    <div style="font-size:28px;margin-bottom:8px;">⚔</div>
+                    <div style="color:#FFD700;font-size:16px;font-weight:bold;margin-bottom:6px;">Zum Krieger werden</div>
+                    <div style="font-size:13px;color:#C8A96E;">Kämpfer des Clans<br>Weg zum Anführer</div>
+                </div>
+            </div>
+        </div>
+    `);
+
+    const resume = () => {
+        WG.Screens._hideOverlay();
+        WG.gameStarted = true;
+        if (!WG.Helpers.isMobile()) document.getElementById('renderCanvas').requestPointerLock();
+    };
+
+    document.getElementById('stayHealer').addEventListener('click', () => {
+        WG.HUD.showRankSplash('Du bist die Medizinkatze des DonnerClans!');
+        resume();
+    });
+
+    document.getElementById('switchWarrior').addEventListener('click', () => {
+        const ps = WG.playerStats;
+        ps.path = 'warrior';
+        ps.attackPower = WG.C.ATTACK_POWER_BASE + 1;
+        ps.rankIndex = 2;
+        ps.rank = WG.C.RANKS_WARRIOR[2].name;
+        WG.HUD.updateRank();
+        WG.HUD.showRankSplash('Du wechselst zum Krieger-Pfad!\nDu bist jetzt ein ' + ps.rank + '!');
+        resume();
+    });
 };
 
 WG.Screens.showDeathScreen = function (livesLeft) {
