@@ -1,0 +1,19 @@
+{
+  "env": {
+    "browser": true,
+    "es2020": true
+  },
+  "globals": {
+    "WG": "writable",
+    "BABYLON": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-undef": "error",
+    "eqeqeq": "warn",
+    "no-var": "warn"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020
+  }
+}
