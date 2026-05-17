@@ -1,0 +1,13 @@
+{
+  "name": "bensgames",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "http-server . -p 8080 -o --cors",
+    "lint": "eslint js/**/*.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "http-server": "^14.1.1"
+  }
+}
