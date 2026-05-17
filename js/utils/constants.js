@@ -2,7 +2,7 @@ window.WG = window.WG || {};
 
 WG.C = {
     WORLD_SIZE: 500,
-    TERRAIN_SUBS: 80,
+    TERRAIN_SUBS: 48,
 
     PLAYER_HEIGHT: 1.2,
     PLAYER_SPEED: 14,

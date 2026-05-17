@@ -30,7 +30,7 @@ WG.Environment._createTrees = function (scene) {
     trunk.material = trunkMat;
     trunk.isPickable = false;
 
-    const top = BABYLON.MeshBuilder.CreateSphere('treeTop', { diameter: 3.8, segments: 6 }, scene);
+    const top = BABYLON.MeshBuilder.CreateSphere('treeTop', { diameter: 3.8, segments: 4 }, scene);
     top.material = foliageMat;
     top.isPickable = false;
     top.parent = trunk;
@@ -39,7 +39,7 @@ WG.Environment._createTrees = function (scene) {
     const H = WG.Helpers;
     const sz = WG.C.WORLD_SIZE * 0.46;
 
-    for (let i = 0; i < 320; i++) {
+    for (let i = 0; i < 140; i++) {
         const x = H.rand(-sz, sz);
         const z = H.rand(-sz, sz);
         if (Math.abs(x) < 30 && Math.abs(z) < 30) continue; // skip camp area
@@ -55,7 +55,7 @@ WG.Environment._createTrees = function (scene) {
     // Collision cylinders for trees near camp that player can bump into
     const colMat = new BABYLON.StandardMaterial('colMat', scene);
     colMat.alpha = 0;
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 18; i++) {
         const angle = H.rand(0, Math.PI * 2);
         const dist = H.rand(35, 80);
         const x = Math.cos(angle) * dist;
@@ -76,7 +76,7 @@ WG.Environment._createRocks = function (scene) {
 
     const H = WG.Helpers;
     const sz = WG.C.WORLD_SIZE * 0.44;
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 25; i++) {
         const x = H.rand(-sz, sz);
         const z = H.rand(-sz, sz);
         if (Math.sqrt(x * x + z * z) < 35) continue;

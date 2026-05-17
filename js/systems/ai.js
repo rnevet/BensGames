@@ -2,7 +2,7 @@ window.WG = window.WG || {};
 WG.AI = {};
 
 WG.AI._frameCount = 0;
-WG.AI._TICK = 6; // update every 6 frames
+WG.AI._TICK = 10; // update every 10 frames
 
 WG.AI.init = function (scene) {
     scene.onBeforeRenderObservable.add(function () {
@@ -14,7 +14,11 @@ WG.AI.init = function (scene) {
         const playerPos = WG.Camera.cam.position;
 
         WG.Enemy.list.forEach(e => {
-            if (e.alive) WG.AI._updateEnemy(e, playerPos, dt);
+            if (!e.alive) return;
+            const near = WG.Helpers.distXZ(e.mesh.position, playerPos) < 80;
+            e.label.isVisible = near;
+            e.hpBar.isVisible = near;
+            if (near) WG.AI._updateEnemy(e, playerPos, dt);
         });
         WG.AI._checkBossTrigger(playerPos);
         WG.AI._updateActiveBoss(playerPos, dt, scene);
