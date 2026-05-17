@@ -100,7 +100,7 @@ WG.Touch.applyJoystick = function () {
     const d = WG.Touch._joystickDelta;
     if (Math.abs(d.x) < 0.05 && Math.abs(d.y) < 0.05) return;
 
-    const speed = WG.C.PLAYER_SPEED * 0.016;
+    const speed = WG.C.PLAYER_SPEED * 0.008;
     const fwd = cam.getForwardRay(1).direction;
     const right = BABYLON.Vector3.Cross(BABYLON.Vector3.Up(), fwd).normalize();
     fwd.y = 0; fwd.normalize();
