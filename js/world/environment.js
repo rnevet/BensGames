@@ -129,6 +129,8 @@ WG.Environment._createCamp = function (scene) {
     campGround.material = cgMat;
     campGround.position.y = 0.05;
     campGround.isPickable = false;
+
+    WG.Environment._createCampfire(scene);
 };
 
 WG.Environment._createRiver = function (scene) {
@@ -173,4 +175,71 @@ WG.Environment.collectHerb = function (herbObj) {
     herbObj.active = false;
     herbObj.mesh.setEnabled(false);
     return true;
+};
+
+WG.Environment._createCampfire = function (scene) {
+    // Stone ring — 8 small boxes arranged in a circle of radius 0.65
+    const stoneMat = new BABYLON.StandardMaterial('fireStoneMat', scene);
+    stoneMat.diffuseColor = new BABYLON.Color3(0.35, 0.32, 0.30);
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const stone = BABYLON.MeshBuilder.CreateBox('fireStone' + i,
+            { width: 0.3, height: 0.2, depth: 0.3 }, scene);
+        stone.material = stoneMat;
+        stone.position.set(Math.cos(angle) * 0.65, 0.05, Math.sin(angle) * 0.65);
+        stone.isPickable = false;
+    }
+
+    // Logs — 3 cylinders crossing at center
+    const logMat = new BABYLON.StandardMaterial('logMat', scene);
+    logMat.diffuseColor = new BABYLON.Color3(0.32, 0.20, 0.08);
+    for (let i = 0; i < 3; i++) {
+        const log = BABYLON.MeshBuilder.CreateCylinder('fireLog' + i,
+            { diameter: 0.14, height: 0.9, tessellation: 6 }, scene);
+        log.material = logMat;
+        log.position.set(0, 0.07, 0);
+        log.rotation.z = 1.0;
+        log.rotation.y = (i / 3) * Math.PI * 2;
+        log.isPickable = false;
+    }
+
+    // Flame — inverted cone (wide at bottom, narrow at top)
+    const flameMat = new BABYLON.StandardMaterial('flameMat', scene);
+    flameMat.emissiveColor = new BABYLON.Color3(1.0, 0.45, 0.05);
+    flameMat.diffuseColor = new BABYLON.Color3(1.0, 0.5, 0.1);
+    const flame = BABYLON.MeshBuilder.CreateCylinder('campFlame',
+        { diameterTop: 0.02, diameterBottom: 0.28, height: 0.65, tessellation: 8 }, scene);
+    flame.material = flameMat;
+    flame.position.set(0, 0.38, 0);
+    flame.isPickable = false;
+
+    // Glow sphere — inner flame core
+    const glowSphere = BABYLON.MeshBuilder.CreateSphere('campGlow',
+        { diameter: 0.22, segments: 5 }, scene);
+    glowSphere.material = flameMat;
+    glowSphere.position.set(0, 0.2, 0);
+    glowSphere.isPickable = false;
+
+    // Point light for fire illumination
+    const fireLight = new BABYLON.PointLight('fireLight',
+        new BABYLON.Vector3(0, 1.2, 0), scene);
+    fireLight.diffuse = new BABYLON.Color3(1.0, 0.5, 0.1);
+    fireLight.specular = new BABYLON.Color3(0.3, 0.1, 0.0);
+    fireLight.intensity = 1.4;
+    fireLight.range = 28;
+    WG.Environment._fireLight = fireLight;
+
+    // Flickering — two overlapping sin waves at different frequencies
+    var _flickerT = 0;
+    scene.onBeforeRenderObservable.add(function () {
+        var dt = scene.getEngine().getDeltaTime() / 1000;
+        _flickerT += dt;
+        var flicker = 1.0
+            + 0.12 * Math.sin(_flickerT * 7.3 * Math.PI * 2)
+            + 0.08 * Math.sin(_flickerT * 13.7 * Math.PI * 2);
+        fireLight.intensity = 1.4 * flicker;
+        var scaleY = 0.88 + (flicker - 1.0 + 0.2) * (1.12 - 0.88) / 0.4;
+        scaleY = Math.max(0.88, Math.min(1.12, scaleY));
+        flame.scaling.y = scaleY;
+    });
 };

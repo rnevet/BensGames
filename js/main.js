@@ -32,8 +32,14 @@ window.onerror = function (msg, src, line) {
         // Sky color
         scene.clearColor = new BABYLON.Color4(0.55, 0.70, 0.85, 1.0);
 
+        // Graphics (sky sphere, glow layer, shadow generator)
+        WG.Graphics.init(scene, sun);
+
         // Build world
         WG.Terrain.create(scene);
+        if (WG.Graphics._shadowGenerator && WG.Terrain._ground) {
+            WG.Terrain._ground.receiveShadows = true;
+        }
         WG.Environment.create(scene);
         WG.Territories; // ensure loaded
 

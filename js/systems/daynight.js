@@ -95,6 +95,18 @@ WG.DayNight._apply = function (scene, sun, hemi) {
         else                                icon = '🌇';
         WG.DayNight._label.textContent = icon;
     }
+
+    // Update sky sphere colour
+    var sky = { r: v.sky[0], g: v.sky[1], b: v.sky[2] };
+    if (WG.Graphics && WG.Graphics.setSkyColor) {
+        WG.Graphics.setSkyColor(sky.r, sky.g, sky.b);
+    }
+
+    // Fire light — brighter at night (day fraction = v.sun clamped 0..1)
+    if (WG.Environment && WG.Environment._fireLight) {
+        var dayFrac = WG.Helpers.clamp(v.sun, 0, 1);
+        WG.Environment._fireLight.intensity = 1.4 * (1.0 + (1 - dayFrac) * 0.8);
+    }
 };
 
 WG.DayNight.init = function (scene, sun, hemi) {
